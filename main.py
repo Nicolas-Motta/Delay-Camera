@@ -5,10 +5,11 @@ import cv2
 import numpy as np
 
 # =====================================
-DELAY_S = 5
-TELECAMERA = 1
+DELAY_S = 15
+TELECAMERA = 0
 AUTO_FOCUS = 1 # 1 abilitato    -    0 didabilitato
 FOCUS = 45
+ENABLE_FILETER = False
 # =====================================
 
 
@@ -33,11 +34,12 @@ def capture_frames() -> None:
         ret, frame = cap.read()
 
         #? apply filters
-        fgmask = fgbg.apply(frame)
-        gaussian_blur = cv2.GaussianBlur(frame, (9, 9), 10.0)
-        sharpened_frame = cv2.addWeighted(frame, 1.5, gaussian_blur, -0.5, 0)
-        _, fgmask = cv2.threshold(fgmask, 250, 255, cv2.THRESH_BINARY)
-        frame = np.where(fgmask[:,:,None] == 255, sharpened_frame, frame)
+        if ENABLE_FILETER:
+            fgmask = fgbg.apply(frame)
+            gaussian_blur = cv2.GaussianBlur(frame, (9, 9), 10.0)
+            sharpened_frame = cv2.addWeighted(frame, 1.5, gaussian_blur, -0.5, 0)
+            _, fgmask = cv2.threshold(fgmask, 250, 255, cv2.THRESH_BINARY)
+            frame = np.where(fgmask[:,:,None] == 255, sharpened_frame, frame)
         
         if not ret:
             stop_event.set()
